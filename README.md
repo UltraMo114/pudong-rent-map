@@ -62,3 +62,17 @@
 - [rent-radar（Apache-2.0）](https://github.com/xuanyuanli/rent-radar) 提供了基础数据与价格数据分层更新、输入质量检查的参考。
 - 原型独立实现，未复制两仓库代码或导入其房源快照。未接入抓取或高德 API。接入地图服务前核对展示、缓存、导出与 Key 使用范围。公开运营前另核对上海房源核验要求、数据来源权限及个人信息处理义务。
 - [浦东保利林语溪整改材料](https://www.pudong.gov.cn/pudong-interaction-front/collect/detail/a54ae3fa3dca4a83bdd00e37ecabb797) · [房天下年代口径](https://m.fang.com/xiaoqu/strategy/sh/1210613306.html) · [上海房源核验业务告知](https://zfzl.fgj.sh.gov.cn/ht_txt_show/showdoc1.html) · [高德开放平台服务协议](https://developer.amap.com/pages/terms/)
+
+## 龙华中路通勤首页
+
+首页为局部线路示意图。站点饱和度与透明度按图内最少换乘数递减，同换乘数优先较少乘车站数。该图覆盖 7、8、11、12、13 号线的部分区段，不包含图外线路及出站换乘。通勤时间需另行核验。站序参见 [MetroMan](https://www.metroman.cn/cities/shanghai/stations)。
+
+原版 JSON 仍可导入。可选新增字段如下。
+
+| 字段 | 格式 |
+| --- | --- |
+| stationAccess | 每条含 communityId、station（图上站名）、walkMinutes（允许 null）、source。每个站与小区组合保留一条，记录实际使用入口。 |
+| layouts | 每条含 id、communityId、name。可选 floorplanUrl（来源链接）和 floorplanImage（已获准显示的 HTTPS 图片）。同格局人工核验后共用 ID。 |
+| listings 的扩展字段 | layoutId、provider（贝壳、我爱我家、自如）、floor、decoration、fees、url。单套的各来源观察可共享 unitKey。 |
+
+源站链接为上海租房入口，房源由本地 JSON 导入。初始库保留空的站点步行关联、户型及挂牌。原小区、租售比与路线对比入口在首页下方。

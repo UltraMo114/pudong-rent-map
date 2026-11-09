@@ -135,6 +135,7 @@ $('file').addEventListener('change',async e=>{
     const file=e.target.files[0];
     if(file.size>5*1024*1024) throw Error('本地试点文件上限为 5 MiB');
     data=M.validate(JSON.parse(await file.text()));
+    document.dispatchEvent(new Event('rent-data-loaded'));
     $('error').textContent='';
     refresh();
   }catch(error){$('error').textContent='载入失败 · '+error.message;}

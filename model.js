@@ -23,6 +23,24 @@
     }
     const communities = ids(d.communities,'小区');
     const destinations = ids(d.destinations,'目的地');
+    for (const k of ['layouts','stationAccess']) {
+      if (d[k] != null && (!Array.isArray(d[k]) || d[k].some(r => !r || !communities.has(r.communityId)))) {
+        throw Error(k+' 存在无效记录或未知小区');
+      }
+    }
+    ids(d.layouts||[],'户型');
+    const layouts = new Map((d.layouts||[]).map(r=>[r.id,r]));
+    for (const r of d.layouts||[]) {
+      if (!source(r.name)) throw Error('户型名称缺失');
+    }
+    for (const r of d.stationAccess||[]) {
+      if (!source(r.station)||!source(r.source)||(r.walkMinutes!=null&&!(Number.isFinite(r.walkMinutes)&&r.walkMinutes>=0))) {
+        throw Error('站点步行记录须有车站、证据和有效分钟数');
+      }
+    }
+    for (const r of d.listings) {
+      if (r.layoutId!=null && layouts.get(r.layoutId)?.communityId!==r.communityId) throw Error('房源户型关联无效');
+    }
     ids(d.listings,'房源'); ids(d.saleSamples,'出售样本');
     for (const k of ['listings','saleSamples','quality','routes']) {
       if (d[k].some(r => !communities.has(r.communityId))) throw Error(k+' 存在未知小区');

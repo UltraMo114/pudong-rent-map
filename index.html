@@ -15,15 +15,39 @@ small,.muted{color:#4e665e} .tag{display:inline-block;background:#e8f3ec;border-
 a{color:#1d6254}svg{width:100%;height:auto;background:#edf5ef;border-radius:10px}svg g[tabindex]{cursor:pointer}
 article:target,article:focus{outline:2px solid #367760} ul{padding-left:20px} #error{color:#963b29}
 @media(max-width:780px){body{padding:13px}.columns{grid-template-columns:1fr}}
+.metro-scroll{overflow:auto}.metro-scroll svg{min-width:800px;background:#f7faf6;display:block}
+.metro-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.metro-toolbar select{max-width:100%}.metro-layout{display:grid;grid-template-columns:1fr 315px;gap:16px}
+.metro-layout article{margin:10px 0}.metro-layout img{display:block;max-width:100%;max-height:230px;margin:10px 0}
+.metro-layout details{margin-top:8px}.metro-layout summary{cursor:pointer}.metro-layout svg g:focus circle{stroke:#162a26;stroke-width:4}
+#station-panel{min-width:0}details.legacy{margin-top:20px}
+@media(max-width:1050px){.metro-layout{grid-template-columns:1fr}}
 </style>
 <header>
 <p class="kicker">PUDONG HOUSING LAB / 01</p>
 <h1>浦东租住地图</h1>
-<p>三林与周边 · 从小区候选到可核验的在租样本</p>
+<p>从龙华中路出发，按地铁换乘找房</p>
 </header>
+<section>
+<h2>龙华中路通勤图</h2>
+<p class="muted">浦东南部试点 · 线路示意 · 色彩随最少换乘次数变淡 · 站数按图内线路计算</p>
+<div class="metro-toolbar">
+<label>选择车站<select id="station-picker"></select></label>
+<label>换乘范围<select id="transfer-limit"><option value="all">全部</option><option value="0">仅直达</option><option value="1">最多换乘一次</option></select></label>
+<label>房源来源<select id="provider"><option value="">全部</option><option>贝壳</option><option>我爱我家</option><option>自如</option></select></label>
+</div>
+<div class="metro-layout">
+<div><div id="metro-map" class="metro-scroll"></div>
+<p><span class="tag">● 直达</span><span class="tag">◉ 换乘 1 次</span><span class="tag">○ 换乘 2 次及以上</span></p>
+<small>局部线网，不含实时运营、步行或候车时间。<a href="https://www.metroman.cn/cities/shanghai/stations" target="_blank" rel="noopener noreferrer">站序来源</a></small>
+</div>
+<div id="station-panel" aria-live="polite"></div>
+</div>
+</section>
 <section>
 <div class="controls">
 <label>载入本地 JSON<input type="file" id="file" accept=".json,application/json"></label>
+<label>步行到站上限 · 分钟<input type="number" min="0" id="walk-limit"></label>
 <label>月租上限 · 元<input type="number" min="0" id="rent"></label>
 <label>面积下限 · ㎡<input type="number" min="0" id="area"></label>
 <label>建成年份起点<input type="number" min="1800" max="2100" id="year"></label>
@@ -35,6 +59,7 @@ article:target,article:focus{outline:2px solid #367760} ul{padding-left:20px} #e
 </div>
 <p id="error" role="alert"></p><p id="summary" aria-live="polite"></p>
 </section>
+<details class="legacy"><summary>展开小区档案、租售比及路线记录</summary>
 <div class="columns">
 <div><section><h2>地理分布</h2><p class="muted">离线坐标图 · 北向上 · 同一坐标系 · 点击定位卡片</p>
 <label>坐标系<select id="crs"><option>WGS84</option><option>GCJ02</option></select></label>
@@ -46,6 +71,7 @@ article:target,article:focus{outline:2px solid #367760} ul{padding-left:20px} #e
 </div><small>仅整租挂牌与出售挂牌。两侧各至少 3 套已人工去重的同类样本。筛选区的房源条件独立于该口径。</small></section></div>
 <div id="cards"></div>
 </div>
+</details>
 <script>(function (root) {
   const axes = {noise:30, property:25, space:20, access:15, upkeep:10};
   const labels = {noise:'安静度', property:'物业维护', space:'公共空间', access:'出入便利', upkeep:'楼栋与设备'};
@@ -71,6 +97,24 @@ article:target,article:focus{outline:2px solid #367760} ul{padding-left:20px} #e
     }
     const communities = ids(d.communities,'小区');
     const destinations = ids(d.destinations,'目的地');
+    for (const k of ['layouts','stationAccess']) {
+      if (d[k] != null && (!Array.isArray(d[k]) || d[k].some(r => !r || !communities.has(r.communityId)))) {
+        throw Error(k+' 存在无效记录或未知小区');
+      }
+    }
+    ids(d.layouts||[],'户型');
+    const layouts = new Map((d.layouts||[]).map(r=>[r.id,r]));
+    for (const r of d.layouts||[]) {
+      if (!source(r.name)) throw Error('户型名称缺失');
+    }
+    for (const r of d.stationAccess||[]) {
+      if (!source(r.station)||!source(r.source)||(r.walkMinutes!=null&&!(Number.isFinite(r.walkMinutes)&&r.walkMinutes>=0))) {
+        throw Error('站点步行记录须有车站、证据和有效分钟数');
+      }
+    }
+    for (const r of d.listings) {
+      if (r.layoutId!=null && layouts.get(r.layoutId)?.communityId!==r.communityId) throw Error('房源户型关联无效');
+    }
     ids(d.listings,'房源'); ids(d.saleSamples,'出售样本');
     for (const k of ['listings','saleSamples','quality','routes']) {
       if (d[k].some(r => !communities.has(r.communityId))) throw Error(k+' 存在未知小区');
@@ -146,7 +190,61 @@ article:target,article:focus{outline:2px solid #367760} ul{padding-left:20px} #e
   else root.RentModel=api;
 })(globalThis);
 </script>
-<script>const initialData = {"version": 1, "communities": [{"id": "pd-xyxl-68", "name": "保利林语溪", "district": "浦东新区", "area": "康桥镇／三林周边", "address": "秀沿西路68弄", "year": 2011, "households": 1878, "location": null, "tags": ["保利开发", "约1878户", "历史积水整改｜现状待核"], "source": "https://www.pudong.gov.cn/pudong-interaction-front/collect/detail/a54ae3fa3dca4a83bdd00e37ecabb797", "note": "采用康桥镇材料的建成年份和约数。房天下建筑年代字段为2010。整改材料描述的是历史积水及计划，当前状态未知。作为对照样本，尚未确认是此前谈到的保利项目。"}, {"id": "pd-sbl-518", "name": "金地湾流域｜尚博路518弄", "district": "浦东新区", "area": "三林", "address": "尚博路518弄", "year": null, "households": null, "location": null, "tags": [], "source": "https://sh.loupan.com/community/8596965.html", "note": "候选门牌。来源同时列出569弄。分期边界、年份及户数待核。"}, {"id": "pd-ddzl-94", "name": "三林世博家园｜大道站路94弄", "district": "浦东新区", "area": "三林", "address": "大道站路94弄", "year": null, "households": null, "location": null, "tags": ["基线对照"], "source": "https://m.fang.com/xiaoqu/strategy/sh/1210166704.html", "note": "来源列出2005竣工、2006建筑年代，门牌和统计范围仍需复核。避免把整个世博家园户数归到这个门牌。"}], "listings": [], "saleSamples": [], "quality": [], "routes": [], "destinations": []};</script>
+<script>(function (root) {
+  const hub = '龙华中路';
+  // Consecutive stations in the displayed excerpts. Shared names here are verified transfers.
+  const lines = [
+    {id:'7', color:'#df712b', stops:['东安路',hub,'后滩','长清路','耀华路','云台路','高科西路','杨高南路','锦绣路','芳华路','龙阳路','花木路']},
+    {id:'12', color:'#328963', stops:['漕宝路','龙漕路','龙华',hub,'大木桥路','嘉善路','陕西南路']},
+    {id:'8', color:'#2285be', stops:['中华艺术宫','耀华路','成山路','杨思','东方体育中心','凌兆新村','芦恒路']},
+    {id:'13', color:'#bd6398', stops:['成山路','东明路','华鹏路']},
+    {id:'11', color:'#9b5245', stops:['龙华','云锦路','龙耀路','东方体育中心','三林','三林东','浦三路','康恒路','御桥','罗山路','秀沿路']}
+  ];
+  const positions = {
+    东安路:[280,85], 龙华中路:[280,160], 后滩:[365,160], 长清路:[450,160], 耀华路:[535,160],
+    云台路:[620,160], 高科西路:[705,160], 杨高南路:[790,160], 锦绣路:[875,160], 芳华路:[960,160],
+    龙阳路:[1045,160], 花木路:[1130,160], 漕宝路:[45,315], 龙漕路:[130,315], 龙华:[215,315],
+    大木桥路:[390,95], 嘉善路:[490,55], 陕西南路:[600,55], 中华艺术宫:[535,87], 成山路:[535,224],
+    杨思:[535,293], 东方体育中心:[535,380], 凌兆新村:[440,458], 芦恒路:[350,458], 云锦路:[310,380],
+    龙耀路:[420,380], 三林:[620,380], 三林东:[705,380], 浦三路:[790,380], 康恒路:[875,380],
+    御桥:[960,380], 罗山路:[1045,380], 秀沿路:[1130,380], 东明路:[640,224], 华鹏路:[745,224]
+  };
+  const key = (station,line) => station+'|'+line;
+  const order = (a,b) => a.transfers-b.transfers || a.stops-b.stops;
+  function routes() {
+    const graph = new Map();
+    const byStation = new Map();
+    for (const line of lines) for (const [i,station] of line.stops.entries()) {
+      const id=key(station,line.id);
+      const state={id,station,line:line.id};
+      graph.set(id,{state,edges:[line.stops[i-1],line.stops[i+1]].filter(Boolean)
+        .map(next=>({id:key(next,line.id),transfer:false}))});
+      if (!byStation.has(station)) byStation.set(station,[]);
+      byStation.get(station).push(state);
+    }
+    for (const states of byStation.values()) for (const state of states) {
+      for (const other of states) if (other.id!==state.id) graph.get(state.id).edges.push({id:other.id,transfer:true});
+    }
+    const best=new Map();
+    const queue=byStation.get(hub).map(state=>({id:state.id,transfers:0,stops:0,path:[state]}));
+    while(queue.length){
+      queue.sort(order);
+      const here=queue.shift();
+      if(best.has(here.id)) continue;
+      best.set(here.id,here);
+      for(const edge of graph.get(here.id).edges) if(!best.has(edge.id)) {
+        queue.push({id:edge.id,transfers:here.transfers+Number(edge.transfer),
+          stops:here.stops+Number(!edge.transfer),path:[graph.get(edge.id).state,...here.path]});
+      }
+    }
+    return new Map([...byStation].map(([name,states])=>[name,states.map(s=>best.get(s.id)).filter(Boolean).sort(order)[0]]));
+  }
+  const api={hub,lines,positions,routes};
+  if(typeof module==='object') module.exports=api;
+  else root.Metro=api;
+})(globalThis);
+</script>
+<script>const initialData = {"version": 1, "communities": [{"id": "pd-xyxl-68", "name": "保利林语溪", "district": "浦东新区", "area": "康桥镇／三林周边", "address": "秀沿西路68弄", "year": 2011, "households": 1878, "location": null, "tags": ["保利开发", "约1878户", "历史积水整改｜现状待核"], "source": "https://www.pudong.gov.cn/pudong-interaction-front/collect/detail/a54ae3fa3dca4a83bdd00e37ecabb797", "note": "采用康桥镇材料的建成年份和约数。房天下建筑年代字段为2010。整改材料描述的是历史积水及计划，当前状态未知。作为对照样本，尚未确认是此前谈到的保利项目。"}, {"id": "pd-sbl-518", "name": "金地湾流域｜尚博路518弄", "district": "浦东新区", "area": "三林", "address": "尚博路518弄", "year": null, "households": null, "location": null, "tags": [], "source": "https://sh.loupan.com/community/8596965.html", "note": "候选门牌。来源同时列出569弄。分期边界、年份及户数待核。"}, {"id": "pd-ddzl-94", "name": "三林世博家园｜大道站路94弄", "district": "浦东新区", "area": "三林", "address": "大道站路94弄", "year": null, "households": null, "location": null, "tags": ["基线对照"], "source": "https://m.fang.com/xiaoqu/strategy/sh/1210166704.html", "note": "来源列出2005竣工、2006建筑年代，门牌和统计范围仍需复核。避免把整个世博家园户数归到这个门牌。"}], "stationAccess": [], "layouts": [], "listings": [], "saleSamples": [], "quality": [], "routes": [], "destinations": []};</script>
 <script>'use strict';
 const M = RentModel;
 const $ = id => document.getElementById(id);
@@ -284,6 +382,7 @@ $('file').addEventListener('change',async e=>{
     const file=e.target.files[0];
     if(file.size>5*1024*1024) throw Error('本地试点文件上限为 5 MiB');
     data=M.validate(JSON.parse(await file.text()));
+    document.dispatchEvent(new Event('rent-data-loaded'));
     $('error').textContent='';
     refresh();
   }catch(error){$('error').textContent='载入失败 · '+error.message;}
@@ -291,5 +390,128 @@ $('file').addEventListener('change',async e=>{
 });
 for(const id of ['rent','area','year','beds','destination','mode','scenario','sort','crs','yb','ya','yz']) $(id).addEventListener('input',render);
 refresh();
+</script>
+<script>'use strict';
+const metroRoutes=Metro.routes();
+const svgNS='http://www.w3.org/2000/svg';
+let selectedStation='三林';
+function svgItem(tag,attrs,parent) {
+  const el=document.createElementNS(svgNS,tag);
+  for(const [name,value] of Object.entries(attrs)) el.setAttribute(name,value);
+  parent.append(el);
+  return el;
+}
+function selectStation(name,focusMap=false) {
+  selectedStation=name;
+  renderMetro();
+  if(focusMap) document.querySelector('[data-station][aria-pressed="true"]')?.focus();
+}
+function renderMetro() {
+  const max=$('transfer-limit').value;
+  const available=[...metroRoutes].filter(([,r])=>r && (max==='all'||r.transfers<=Number(max)));
+  available.sort((a,b)=>a[1].transfers-b[1].transfers||a[1].stops-b[1].stops);
+  if(!available.some(([s])=>s===selectedStation)) selectedStation=Metro.hub;
+  options('station-picker',available.map(([name,r])=>({id:name,name:name+(r.transfers?' · 换乘 '+r.transfers:' · 直达')})),'选择车站');
+  $('station-picker').value=selectedStation;
+  const route=metroRoutes.get(selectedStation);
+  const map=$('metro-map');
+  map.replaceChildren();
+  const svg=svgItem('svg',{viewBox:'0 0 1180 500','aria-label':'龙华中路地铁通勤图'},map);
+  const points=stops=>stops.map(s=>Metro.positions[s].join(',')).join(' ');
+  for(const line of Metro.lines) {
+    svgItem('polyline',{points:points(line.stops),fill:'none',stroke:line.color,'stroke-width':6,
+      opacity:.4,'stroke-linecap':'round','stroke-linejoin':'round'},svg);
+  }
+  for(let i=1;i<route.path.length;i++){
+    const a=route.path[i-1],b=route.path[i];
+    if(a.station===b.station) continue;
+    const color=Metro.lines.find(line=>line.id===a.line).color;
+    svgItem('polyline',{points:points([a.station,b.station]),fill:'none',stroke:color,'stroke-width':7,'stroke-linecap':'round'},svg);
+  }
+  for(const [station,r] of available) {
+    const [x,y]=Metro.positions[station];
+    const hub=station===Metro.hub, selected=station===selectedStation;
+    const color=['#087d61','#579887','#879e95'][Math.min(2,r.transfers)];
+    const opacity=[1,.76,.53][Math.min(2,r.transfers)];
+    const g=svgItem('g',{tabindex:0,role:'button','data-station':station,'aria-pressed':selected,
+      'aria-label':station+(hub?'，通勤终点':'，换乘 '+r.transfers+' 次')},svg);
+    svgItem('circle',{cx:x,cy:y,r:22,fill:'transparent'},g);
+    svgItem('circle',{cx:x,cy:y,r:hub?12:selected?10:7,fill:hub?'#203e33':color,
+      opacity:hub||selected?1:opacity,stroke:selected?'#203e33':'white','stroke-width':2},g);
+    svgItem('text',{x,y:y+(station==='龙华中路'?31:25),'text-anchor':'middle',
+      fill:'#233b32','font-size':hub?16:13,'font-weight':hub||selected?700:400},g).textContent=station;
+    g.addEventListener('click',()=>selectStation(station,true));
+    g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectStation(station,true);}});
+  }
+  renderStation(route);
+}
+function renderStation(route) {
+  const panel=$('station-panel');
+  panel.replaceChildren();
+  node('h2',selectedStation,panel);
+  const legs=[route.path[0].line+' 号线'];
+  for(let i=1;i<route.path.length;i++) if(route.path[i-1].line!==route.path[i].line) {
+    legs.push('在'+route.path[i].station+'换 '+route.path[i].line+' 号线');
+  }
+  node('p',selectedStation===Metro.hub?'通勤终点':(route.transfers?route.transfers+' 次换乘':'直达')+' · '+route.stops+' 站',panel);
+  if(route.stops) node('p',legs.join(' → ')+' → 龙华中路',panel).className='muted';
+  const access=new Map((data.stationAccess||[]).filter(a=>a.station===selectedStation).map(a=>[a.communityId,a]));
+  const provider=$('provider').value, walk=value('walk-limit'), year=value('year');
+  const filter={rent:value('rent'),area:value('area'),bedrooms:value('beds')};
+  const groups=[];
+  for(const c of data.communities){
+    const a=access.get(c.id);
+    if(!a || (walk!=null && !(Number.isFinite(a.walkMinutes)&&a.walkMinutes<=walk))
+      || (year!=null && !(c.year>=year))) continue;
+    const observations=data.listings.filter(r=>r.communityId===c.id);
+    const fresh=observations.filter(r=>r.status==='active'&&r.tenure==='whole'&&M.recent(r.checkedAt,today(),7));
+    const unitKey=r=>r.unitKey?'unit:'+r.unitKey:'id:'+r.id;
+    const activeKeys=new Set(M.current(observations,today()).map(unitKey));
+    for(const r of fresh.filter(r=>activeKeys.has(unitKey(r))&&(!provider||r.provider===provider)&&M.matches(r,filter))){
+      const layout=(data.layouts||[]).find(l=>l.id===r.layoutId&&l.communityId===c.id);
+      const key=layout?'layout:'+layout.id:unitKey(r);
+      let group=groups.find(g=>g.key===key&&g.community.id===c.id);
+      if(!group){group={key,community:c,access:a,layout,rows:[]};groups.push(group);}
+      group.rows.push(r);
+    }
+  }
+  if(!groups.length){
+    node('p',access.size?'当前没有符合筛选条件的近期整租挂牌。':'本站还没有已录入的站点与小区关联。',panel);
+    node('p','可导入本地 JSON，或去平台查找并核验。',panel).className='muted';
+  }
+  const links=node('p',null,panel);
+  for(const [name,url] of [['贝壳','https://sh.ke.com/zufang/'],['我爱我家','https://sh.5i5j.com/zufang/'],['自如','https://sh.ziroom.com/z/']]){
+    if(links.childNodes.length) links.append(' · ');
+    link(links,name,url);
+  }
+  for(const {community:c,access:a,layout,rows} of groups){
+    const card=node('article',null,panel);
+    node('h3',layout?.name||'格局待核 · '+fmt(rows[0].bedrooms,' 室'),card);
+    const walkInfo=node('p',c.name+' · '+fmt(a.walkMinutes,' 分钟步行'),card);
+    link(walkInfo,' · 到站证据',a.source);
+    for(const tag of c.tags||[]) node('span',tag,card).className='tag';
+    if(layout?.floorplanImage && /^https:\/\//i.test(layout.floorplanImage)){
+      const img=node('img',null,card);
+      img.addEventListener('error',()=>{img.replaceWith(node('p','户型图暂时无法加载'));});
+      img.loading='lazy';img.referrerPolicy='no-referrer';img.alt=layout.name+'户型图';img.src=layout.floorplanImage;
+    } else node('p','户型图待补',card).className='muted';
+    if(layout?.floorplanUrl) link(card,'查看户型图来源',layout.floorplanUrl);
+    const details=node('details',null,card);
+    details.open=true;
+    node('summary','查看 '+rows.length+' 条近期挂牌观察',details);
+    for(const r of rows.sort((a,b)=>(a.monthlyRent??Infinity)-(b.monthlyRent??Infinity))){
+      const p=node('p',null,details);
+      node('strong',fmt(r.monthlyRent,' 元/月'),p);
+      p.append(' · '+[fmt(r.areaM2,' ㎡',1),r.floor||'楼层待核',r.decoration||'装修待核'].join(' · '));
+      node('small',[r.provider||'来源未分类',r.checkedAt,r.fees||'费用口径待核'].join(' · '),details);
+      details.append(' ');
+      link(details,'原挂牌',r.url||r.source);
+    }
+  }
+}
+$('station-picker').addEventListener('change',e=>{if(e.target.value)selectStation(e.target.value);});
+for(const id of ['transfer-limit','provider','rent','area','beds','year','walk-limit']) $(id).addEventListener('input',renderMetro);
+document.addEventListener('rent-data-loaded',renderMetro);
+renderMetro();
 </script>
 </html>

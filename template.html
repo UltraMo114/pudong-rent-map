@@ -15,15 +15,39 @@ small,.muted{color:#4e665e} .tag{display:inline-block;background:#e8f3ec;border-
 a{color:#1d6254}svg{width:100%;height:auto;background:#edf5ef;border-radius:10px}svg g[tabindex]{cursor:pointer}
 article:target,article:focus{outline:2px solid #367760} ul{padding-left:20px} #error{color:#963b29}
 @media(max-width:780px){body{padding:13px}.columns{grid-template-columns:1fr}}
+.metro-scroll{overflow:auto}.metro-scroll svg{min-width:800px;background:#f7faf6;display:block}
+.metro-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.metro-toolbar select{max-width:100%}.metro-layout{display:grid;grid-template-columns:1fr 315px;gap:16px}
+.metro-layout article{margin:10px 0}.metro-layout img{display:block;max-width:100%;max-height:230px;margin:10px 0}
+.metro-layout details{margin-top:8px}.metro-layout summary{cursor:pointer}.metro-layout svg g:focus circle{stroke:#162a26;stroke-width:4}
+#station-panel{min-width:0}details.legacy{margin-top:20px}
+@media(max-width:1050px){.metro-layout{grid-template-columns:1fr}}
 </style>
 <header>
 <p class="kicker">PUDONG HOUSING LAB / 01</p>
 <h1>浦东租住地图</h1>
-<p>三林与周边 · 从小区候选到可核验的在租样本</p>
+<p>从龙华中路出发，按地铁换乘找房</p>
 </header>
+<section>
+<h2>龙华中路通勤图</h2>
+<p class="muted">浦东南部试点 · 线路示意 · 色彩随最少换乘次数变淡 · 站数按图内线路计算</p>
+<div class="metro-toolbar">
+<label>选择车站<select id="station-picker"></select></label>
+<label>换乘范围<select id="transfer-limit"><option value="all">全部</option><option value="0">仅直达</option><option value="1">最多换乘一次</option></select></label>
+<label>房源来源<select id="provider"><option value="">全部</option><option>贝壳</option><option>我爱我家</option><option>自如</option></select></label>
+</div>
+<div class="metro-layout">
+<div><div id="metro-map" class="metro-scroll"></div>
+<p><span class="tag">● 直达</span><span class="tag">◉ 换乘 1 次</span><span class="tag">○ 换乘 2 次及以上</span></p>
+<small>局部线网，不含实时运营、步行或候车时间。<a href="https://www.metroman.cn/cities/shanghai/stations" target="_blank" rel="noopener noreferrer">站序来源</a></small>
+</div>
+<div id="station-panel" aria-live="polite"></div>
+</div>
+</section>
 <section>
 <div class="controls">
 <label>载入本地 JSON<input type="file" id="file" accept=".json,application/json"></label>
+<label>步行到站上限 · 分钟<input type="number" min="0" id="walk-limit"></label>
 <label>月租上限 · 元<input type="number" min="0" id="rent"></label>
 <label>面积下限 · ㎡<input type="number" min="0" id="area"></label>
 <label>建成年份起点<input type="number" min="1800" max="2100" id="year"></label>
@@ -35,6 +59,7 @@ article:target,article:focus{outline:2px solid #367760} ul{padding-left:20px} #e
 </div>
 <p id="error" role="alert"></p><p id="summary" aria-live="polite"></p>
 </section>
+<details class="legacy"><summary>展开小区档案、租售比及路线记录</summary>
 <div class="columns">
 <div><section><h2>地理分布</h2><p class="muted">离线坐标图 · 北向上 · 同一坐标系 · 点击定位卡片</p>
 <label>坐标系<select id="crs"><option>WGS84</option><option>GCJ02</option></select></label>
@@ -46,7 +71,10 @@ article:target,article:focus{outline:2px solid #367760} ul{padding-left:20px} #e
 </div><small>仅整租挂牌与出售挂牌。两侧各至少 3 套已人工去重的同类样本。筛选区的房源条件独立于该口径。</small></section></div>
 <div id="cards"></div>
 </div>
+</details>
 <script>/*MODEL*/</script>
+<script>/*METRO*/</script>
 <script>const initialData = /*DATA*/;</script>
 <script>/*APP*/</script>
+<script>/*METRO_UI*/</script>
 </html>
