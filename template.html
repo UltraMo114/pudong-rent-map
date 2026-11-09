@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>浦东租住地图 · 三林试点</title>
+<style>
+:root{font:15px/1.6 system-ui,sans-serif;color:#182e2c;background:#f3f5f0}
+body{max-width:1230px;margin:auto;padding:24px} h1{font-size:clamp(27px,5vw,46px);margin:0}
+h2{font-size:20px;margin:0 0 8px} p{margin:.35em 0}.kicker{font-size:12px;letter-spacing:.18em;color:#35665b}
+section,article{border:1px solid #dce5d9;border-radius:15px;background:white;padding:17px;margin-top:15px}
+.controls{display:flex;gap:12px;flex-wrap:wrap}label{display:grid;gap:4px;font-size:13px}
+input,select,button{font:inherit;padding:5px 8px;border:1px solid #b7c9bf;border-radius:7px;background:white;color:inherit}
+input[type=number]{width:105px}button{cursor:pointer} .columns{display:grid;grid-template-columns:1fr 1.25fr;gap:16px}
+small,.muted{color:#4e665e} .tag{display:inline-block;background:#e8f3ec;border-radius:12px;padding:1px 9px;margin:3px 5px 2px 0}
+a{color:#1d6254}svg{width:100%;height:auto;background:#edf5ef;border-radius:10px}svg g[tabindex]{cursor:pointer}
+article:target,article:focus{outline:2px solid #367760} ul{padding-left:20px} #error{color:#963b29}
+@media(max-width:780px){body{padding:13px}.columns{grid-template-columns:1fr}}
+</style>
+<header>
+<p class="kicker">PUDONG HOUSING LAB / 01</p>
+<h1>浦东租住地图</h1>
+<p>三林与周边 · 从小区候选到可核验的在租样本</p>
+</header>
+<section>
+<div class="controls">
+<label>载入本地 JSON<input type="file" id="file" accept=".json,application/json"></label>
+<label>月租上限 · 元<input type="number" min="0" id="rent"></label>
+<label>面积下限 · ㎡<input type="number" min="0" id="area"></label>
+<label>建成年份起点<input type="number" min="1800" max="2100" id="year"></label>
+<label>卧室数<input type="number" min="0" step="1" id="beds"></label>
+<label>通勤目的地<select id="destination"></select></label>
+<label>出行方式<select id="mode"><option value="transit">公交地铁</option><option value="drive">驾车</option><option value="walk">步行</option><option value="bike">骑行</option></select></label>
+<label>路线场景<select id="scenario"></select></label>
+<label>排序<select id="sort"><option value="default">资料顺序</option><option value="direct">直线距离</option><option value="route">路线距离</option><option value="minutes">路线耗时</option><option value="quality">品质分</option></select></label>
+</div>
+<p id="error" role="alert"></p><p id="summary" aria-live="polite"></p>
+</section>
+<div class="columns">
+<div><section><h2>地理分布</h2><p class="muted">离线坐标图 · 北向上 · 同一坐标系 · 点击定位卡片</p>
+<label>坐标系<select id="crs"><option>WGS84</option><option>GCJ02</option></select></label>
+<div id="map"></div><p id="mapnote"></p></section>
+<section><h2>租售比对照组</h2><div class="controls">
+<label>卧室数<input type="number" id="yb" min="0" step="1" value="2"></label>
+<label>面积下限 · ㎡<input type="number" id="ya" min="1" value="80"></label>
+<label>面积上限 · ㎡<input type="number" id="yz" min="1" value="100"></label>
+</div><small>仅整租挂牌与出售挂牌。两侧各至少 3 套已人工去重的同类样本。筛选区的房源条件独立于该口径。</small></section></div>
+<div id="cards"></div>
+</div>
+<script>/*MODEL*/</script>
+<script>const initialData = /*DATA*/;</script>
+<script>/*APP*/</script>
+</html>

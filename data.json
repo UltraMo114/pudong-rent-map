@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "communities": [
+    {"id":"pd-xyxl-68","name":"保利林语溪","district":"浦东新区","area":"康桥镇／三林周边","address":"秀沿西路68弄","year":2011,"households":1878,"location":null,"tags":["保利开发","约1878户","历史积水整改｜现状待核"],"source":"https://www.pudong.gov.cn/pudong-interaction-front/collect/detail/a54ae3fa3dca4a83bdd00e37ecabb797","note":"采用康桥镇材料的建成年份和约数。房天下建筑年代字段为2010。整改材料描述的是历史积水及计划，当前状态未知。作为对照样本，尚未确认是此前谈到的保利项目。"},
+    {"id":"pd-sbl-518","name":"金地湾流域｜尚博路518弄","district":"浦东新区","area":"三林","address":"尚博路518弄","year":null,"households":null,"location":null,"tags":[],"source":"https://sh.loupan.com/community/8596965.html","note":"候选门牌。来源同时列出569弄。分期边界、年份及户数待核。"},
+    {"id":"pd-ddzl-94","name":"三林世博家园｜大道站路94弄","district":"浦东新区","area":"三林","address":"大道站路94弄","year":null,"households":null,"location":null,"tags":["基线对照"],"source":"https://m.fang.com/xiaoqu/strategy/sh/1210166704.html","note":"来源列出2005竣工、2006建筑年代，门牌和统计范围仍需复核。避免把整个世博家园户数归到这个门牌。"}
+  ],
+  "listings": [],
+  "saleSamples": [],
+  "quality": [],
+  "routes": [],
+  "destinations": []
+}
