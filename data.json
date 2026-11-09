@@ -1,13 +1,243 @@
 {
   "version": 1,
   "communities": [
-    {"id":"pd-xyxl-68","name":"保利林语溪","district":"浦东新区","area":"康桥镇／三林周边","address":"秀沿西路68弄","year":2011,"households":1878,"location":null,"tags":["保利开发","约1878户","历史积水整改｜现状待核"],"source":"https://www.pudong.gov.cn/pudong-interaction-front/collect/detail/a54ae3fa3dca4a83bdd00e37ecabb797","note":"采用康桥镇材料的建成年份和约数。房天下建筑年代字段为2010。整改材料描述的是历史积水及计划，当前状态未知。作为对照样本，尚未确认是此前谈到的保利项目。"},
-    {"id":"pd-sbl-518","name":"金地湾流域｜尚博路518弄","district":"浦东新区","area":"三林","address":"尚博路518弄","year":null,"households":null,"location":null,"tags":[],"source":"https://sh.loupan.com/community/8596965.html","note":"候选门牌。来源同时列出569弄。分期边界、年份及户数待核。"},
-    {"id":"pd-ddzl-94","name":"三林世博家园｜大道站路94弄","district":"浦东新区","area":"三林","address":"大道站路94弄","year":null,"households":null,"location":null,"tags":["基线对照"],"source":"https://m.fang.com/xiaoqu/strategy/sh/1210166704.html","note":"来源列出2005竣工、2006建筑年代，门牌和统计范围仍需复核。避免把整个世博家园户数归到这个门牌。"}
+    {
+      "id": "pd-xyxl-68",
+      "name": "保利林语溪",
+      "district": "浦东新区",
+      "area": "康桥镇／三林周边",
+      "address": "秀沿西路68弄",
+      "year": 2011,
+      "households": 1878,
+      "location": null,
+      "tags": [
+        "保利开发",
+        "约1878户",
+        "历史积水整改｜现状待核"
+      ],
+      "source": "https://www.pudong.gov.cn/pudong-interaction-front/collect/detail/a54ae3fa3dca4a83bdd00e37ecabb797",
+      "note": "采用康桥镇材料的建成年份和约数。房天下建筑年代字段为2010。整改材料描述的是历史积水及计划，当前状态未知。作为对照样本，尚未确认是此前谈到的保利项目。"
+    },
+    {
+      "id": "pd-sbl-518",
+      "name": "金地湾流域｜尚博路518弄",
+      "district": "浦东新区",
+      "area": "三林",
+      "address": "尚博路518弄",
+      "year": null,
+      "households": null,
+      "location": null,
+      "tags": [],
+      "source": "https://sh.loupan.com/community/8596965.html",
+      "note": "候选门牌。来源同时列出569弄。分期边界、年份及户数待核。"
+    },
+    {
+      "id": "pd-ddzl-94",
+      "name": "三林世博家园｜大道站路94弄",
+      "district": "浦东新区",
+      "area": "三林",
+      "address": "大道站路94弄",
+      "year": null,
+      "households": null,
+      "location": null,
+      "tags": [
+        "基线对照"
+      ],
+      "source": "https://m.fang.com/xiaoqu/strategy/sh/1210166704.html",
+      "note": "来源列出2005竣工、2006建筑年代，门牌和统计范围仍需复核。避免把整个世博家园户数归到这个门牌。"
+    },
+    {
+      "id": "jinguang",
+      "name": "金光小区",
+      "district": "浦东新区",
+      "location": null,
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/t1t4/"
+    },
+    {
+      "id": "shanlin879",
+      "name": "杉林新月｜环林东路879弄",
+      "district": "浦东新区",
+      "location": null,
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "id": "yingtao",
+      "name": "中房樱桃苑",
+      "district": "浦东新区",
+      "location": null,
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "id": "b-park",
+      "name": "浦发博园",
+      "district": "浦东新区",
+      "location": null,
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "id": "future",
+      "name": "未来域",
+      "district": "浦东新区",
+      "location": null,
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "id": "linyi5",
+      "name": "临沂五村",
+      "district": "浦东新区",
+      "location": null,
+      "source": "https://sh.5i5j.com/zufang/subway/ss594/c3f4z3/"
+    }
   ],
-  "stationAccess": [],
+  "stationAccess": [
+    {
+      "communityId": "jinguang",
+      "station": "三林",
+      "walkMinutes": null,
+      "reportedMeters": 268,
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/t1t4/"
+    },
+    {
+      "communityId": "shanlin879",
+      "station": "三林东",
+      "walkMinutes": null,
+      "reportedMeters": 893,
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "communityId": "yingtao",
+      "station": "三林东",
+      "walkMinutes": null,
+      "reportedMeters": 228,
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "communityId": "b-park",
+      "station": "浦三路",
+      "walkMinutes": null,
+      "reportedMeters": 404,
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "communityId": "future",
+      "station": "浦三路",
+      "walkMinutes": null,
+      "reportedMeters": 408,
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "communityId": "linyi5",
+      "station": "高科西路",
+      "walkMinutes": null,
+      "reportedMeters": 582,
+      "source": "https://sh.5i5j.com/zufang/subway/ss594/c3f4z3/"
+    }
+  ],
   "layouts": [],
-  "listings": [],
+  "listings": [
+    {
+      "id": "snapshot-jinguang",
+      "communityId": "jinguang",
+      "provider": "我爱我家",
+      "status": "unknown",
+      "evidenceKind": "indexed_snapshot",
+      "tenure": "whole",
+      "monthlyRent": 4450,
+      "areaM2": 43.97,
+      "bedrooms": 1,
+      "livingRooms": 1,
+      "floor": "低楼层/6层",
+      "decoration": "精装（平台描述）",
+      "postedAt": "2026-10-13",
+      "checkedAt": "2026-11-09",
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/t1t4/"
+    },
+    {
+      "id": "snapshot-shanlin879",
+      "communityId": "shanlin879",
+      "provider": "我爱我家",
+      "status": "unknown",
+      "evidenceKind": "indexed_snapshot",
+      "tenure": "whole",
+      "monthlyRent": 5800,
+      "areaM2": 70,
+      "bedrooms": 2,
+      "livingRooms": 1,
+      "floor": "中楼层/6层",
+      "decoration": "精装（平台描述）",
+      "postedAt": "2026-10-20",
+      "checkedAt": "2026-11-09",
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "id": "snapshot-yingtao",
+      "communityId": "yingtao",
+      "provider": "我爱我家",
+      "status": "unknown",
+      "evidenceKind": "indexed_snapshot",
+      "tenure": "whole",
+      "monthlyRent": 13000,
+      "areaM2": 130,
+      "bedrooms": 3,
+      "livingRooms": 2,
+      "floor": "中楼层/13层",
+      "decoration": "精装（平台描述）",
+      "postedAt": "2026-10-25",
+      "checkedAt": "2026-11-09",
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "id": "snapshot-b-park",
+      "communityId": "b-park",
+      "provider": "我爱我家",
+      "status": "unknown",
+      "evidenceKind": "indexed_snapshot",
+      "tenure": "whole",
+      "monthlyRent": 10000,
+      "areaM2": 130,
+      "bedrooms": 3,
+      "livingRooms": 2,
+      "floor": "中楼层/14层",
+      "decoration": "精装（平台描述）",
+      "postedAt": "2026-10-27",
+      "checkedAt": "2026-11-09",
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "id": "snapshot-future",
+      "communityId": "future",
+      "provider": "我爱我家",
+      "status": "unknown",
+      "evidenceKind": "indexed_snapshot",
+      "tenure": "whole",
+      "monthlyRent": 9800,
+      "areaM2": 130,
+      "bedrooms": 3,
+      "livingRooms": 2,
+      "floor": "中楼层/11层",
+      "decoration": "精装（平台描述）",
+      "postedAt": "2026-10-26",
+      "checkedAt": "2026-11-09",
+      "source": "https://sh.5i5j.com/zufang/subway/ss745/f5t4098w2/"
+    },
+    {
+      "id": "snapshot-linyi5",
+      "communityId": "linyi5",
+      "provider": "我爱我家",
+      "status": "unknown",
+      "evidenceKind": "indexed_snapshot",
+      "tenure": "whole",
+      "monthlyRent": 4700,
+      "areaM2": 48.12,
+      "bedrooms": 2,
+      "livingRooms": 0,
+      "floor": "高楼层/6层",
+      "decoration": "精装（平台描述）",
+      "postedAt": "2026-10-30",
+      "checkedAt": "2026-11-09",
+      "source": "https://sh.5i5j.com/zufang/subway/ss594/c3f4z3/"
+    }
+  ],
   "saleSamples": [],
   "quality": [],
   "routes": [],

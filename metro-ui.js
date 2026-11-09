@@ -74,7 +74,10 @@ function renderStation(route) {
     const fresh=observations.filter(r=>r.status==='active'&&r.tenure==='whole'&&M.recent(r.checkedAt,today(),7));
     const unitKey=r=>r.unitKey?'unit:'+r.unitKey:'id:'+r.id;
     const activeKeys=new Set(M.current(observations,today()).map(unitKey));
-    for(const r of fresh.filter(r=>activeKeys.has(unitKey(r))&&(!provider||r.provider===provider)&&M.matches(r,filter))){
+    const indexed=observations.filter(r=>r.status==='unknown'&&r.evidenceKind==='indexed_snapshot'&&r.tenure==='whole'
+      && !activeKeys.has(unitKey(r)));
+    const visible=[...fresh.filter(r=>activeKeys.has(unitKey(r))),...indexed];
+    for(const r of visible.filter(r=>(!provider||r.provider===provider)&&M.matches(r,filter))){
       const layout=(data.layouts||[]).find(l=>l.id===r.layoutId&&l.communityId===c.id);
       const key=layout?'layout:'+layout.id:unitKey(r);
       let group=groups.find(g=>g.key===key&&g.community.id===c.id);
@@ -93,8 +96,8 @@ function renderStation(route) {
   }
   for(const {community:c,access:a,layout,rows} of groups){
     const card=node('article',null,panel);
-    node('h3',layout?.name||'格局待核 · '+fmt(rows[0].bedrooms,' 室'),card);
-    const walkInfo=node('p',c.name+' · '+fmt(a.walkMinutes,' 分钟步行'),card);
+    node('h3',layout?.name||'格局待核 · '+fmt(rows[0].bedrooms,' 室')+(Number.isInteger(rows[0].livingRooms)?rows[0].livingRooms+' 厅':''),card);
+    const walkInfo=node('p',c.name+' · '+(Number.isFinite(a.walkMinutes)?fmt(a.walkMinutes,' 分钟步行'):Number.isFinite(a.reportedMeters)?fmt(a.reportedMeters,' 米（平台标注）'):'步行待核'),card);
     link(walkInfo,' · 到站证据',a.source);
     for(const tag of c.tags||[]) node('span',tag,card).className='tag';
     if(layout?.floorplanImage && /^https:\/\//i.test(layout.floorplanImage)){
@@ -105,14 +108,16 @@ function renderStation(route) {
     if(layout?.floorplanUrl) link(card,'查看户型图来源',layout.floorplanUrl);
     const details=node('details',null,card);
     details.open=true;
-    node('summary','查看 '+rows.length+' 条近期挂牌观察',details);
+    node('summary','查看 '+rows.length+' 条挂牌记录',details);
     for(const r of rows.sort((a,b)=>(a.monthlyRent??Infinity)-(b.monthlyRent??Infinity))){
       const p=node('p',null,details);
       node('strong',fmt(r.monthlyRent,' 元/月'),p);
       p.append(' · '+[fmt(r.areaM2,' ㎡',1),r.floor||'楼层待核',r.decoration||'装修待核'].join(' · '));
-      node('small',[r.provider||'来源未分类',r.checkedAt,r.fees||'费用口径待核'].join(' · '),details);
+      const snapshot=r.evidenceKind==='indexed_snapshot';
+      node('small',[r.provider||'来源未分类',snapshot?'索引快照 · 在租待核':'核验 '+r.checkedAt,
+        snapshot&&r.postedAt?'平台发布 '+r.postedAt:null,r.fees||'费用口径待核'].filter(Boolean).join(' · '),details);
       details.append(' ');
-      link(details,'原挂牌',r.url||r.source);
+      link(details,snapshot?'来源列表':'原挂牌',r.url||r.source);
     }
   }
 }

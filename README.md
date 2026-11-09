@@ -76,3 +76,7 @@
 | listings 的扩展字段 | layoutId、provider（贝壳、我爱我家、自如）、floor、decoration、fees、url。单套的各来源观察可共享 unitKey。 |
 
 源站链接为上海租房入口，房源由本地 JSON 导入。初始库保留空的站点步行关联、户型及挂牌。原小区、租售比与路线对比入口在首页下方。
+
+### 平台样本
+
+首批六条来自我爱我家公开列表的搜索索引，标为 `status: unknown` 和 `evidenceKind: indexed_snapshot`。checkedAt 记录查阅索引的日期，postedAt 为平台发布日期。在站点侧栏中单独标明在租待核，常规近期在租统计及租售比排除这些样本。来源指向列表页。reportedMeters 是平台标注的距离，步行分钟仍为空。贝壳、自如保留入口与来源字段，尚无可核验的试点记录。
